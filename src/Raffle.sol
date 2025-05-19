@@ -38,6 +38,11 @@ contract Raffle is VRFConsumerBaseV2Plus {
     error Raffle__SendMoreToEnterRaffle();
     error Raffle__TransferFailed();
     error Raffle__RaffleNotOpen();
+    error Raffle__UpkeepNotNeeded(
+        uint256 balance,
+        uint256 playersLength,
+        uint256 raffleState
+    );
 
     enum RaffleState {
         OPEN,           // 0
@@ -98,10 +103,30 @@ contract Raffle is VRFConsumerBaseV2Plus {
         emit RaffleEntered(msg.sender);
     }
 
-    function pickWinner() public {
+    /**
+     * @dev This is the function that Chainlink VRF will call to see if the lottery is ready to be drawn.
+     * The following should be true:
+     * 1. The lottery should be open
+     * 2. The contract has ETH
+     * 3. Implicitly, your contract has LINK
+     * @param - ignored
+     * @return upkeepNeeded - true if the lottery should be drawn   
+     * @dev It will be called after the requestRandomWords function is called
+     */
+    function checkUpkeep(bytes memory /* checkData */) public view returns (bool upkeepNeeded, bytes memory /* performData */) {
+        bool timeHasPassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
+        bool isOpen = (s_raffleState == RaffleState.OPEN);
+        bool hasPlayers = (s_players.length > 0);
+        bool hasBalance = (address(this).balance > 0);
+        upkeepNeeded = (timeHasPassed && isOpen && hasPlayers && hasBalance);
+        return (upkeepNeeded, "0x0");
+    }
+
+    function performUpKeep(bytes calldata /* performData */) external {
         // check to see if enough time has passed
-        if (block.timestamp - s_lastTimeStamp < i_interval) {
-            revert();
+        (bool upkeepNeeded, ) = checkUpkeep("");
+        if (!upkeepNeeded) {
+            revert Raffle__UpkeepNotNeeded(address(this).balance, s_players.length, uint256(s_raffleState));
         }
 
         s_raffleState = RaffleState.CALCULATING;
@@ -119,10 +144,10 @@ contract Raffle is VRFConsumerBaseV2Plus {
             )
         });
 
-        uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
+        s_vrfCoordinator.requestRandomWords(request);
     }
 
-    function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal virtual override {
+    function fulfillRandomWords(uint256 /* requestId */, uint256[] calldata randomWords) internal virtual override {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
         s_recentWinner = recentWinner;
