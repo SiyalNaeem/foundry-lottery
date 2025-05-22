@@ -122,7 +122,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         return (upkeepNeeded, "0x0");
     }
 
-    function performUpKeep(bytes calldata /* performData */) external {
+    function performUpkeep(bytes calldata /* performData */) external {
         // check to see if enough time has passed
         (bool upkeepNeeded, ) = checkUpkeep("");
         if (!upkeepNeeded) {
@@ -170,5 +170,39 @@ contract Raffle is VRFConsumerBaseV2Plus {
      */
     function getEntranceFee() external view returns (uint256) {
         return i_entranceFee;
+    }
+
+    function getRaffleState() external view returns (RaffleState) {
+        return s_raffleState;
+    }
+    function getPlayers(uint256 index) external view returns (address) {
+        return s_players[index];
+    }
+    function getRecentWinner() external view returns (address) {
+        return s_recentWinner;
+    }
+    function getNumWords() external pure returns (uint256) {
+        return NUM_WORDS;
+    }
+    function getRequestConfirmations() external pure returns (uint256) {
+        return REQUEST_CONFIRMATIONS;
+    }
+    function getInterval() external view returns (uint256) {
+        return i_interval;
+    }
+    function getSubscriptionId() external view returns (uint256) {
+        return i_subscriptionId;
+    }
+    function getKeyHash() external view returns (bytes32) {
+        return i_keyHash;
+    }
+    function getCallbackGasLimit() external view returns (uint32) {
+        return i_callbackGasLimit;
+    }
+    function getLastTimeStamp() external view returns (uint256) {
+        return s_lastTimeStamp;
+    }
+    function getVrfCoordinator() external view returns (address) {
+        return address(s_vrfCoordinator);
     }
 }
