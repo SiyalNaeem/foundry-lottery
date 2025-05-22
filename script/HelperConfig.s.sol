@@ -29,9 +29,10 @@ contract HelperConfig is CodeConstants, Script {
         uint256 interval;
         address vrfCoordinator;
         bytes32 gasLane;
-        uint64 subscriptionId;
+        uint256 subscriptionId;
         uint32 callbackGasLimit;
         address link;
+        address account;
     }
 
     NetworkConfig public localNetworkConfig;
@@ -62,9 +63,10 @@ contract HelperConfig is CodeConstants, Script {
             interval: 30, // 30 seconds
             vrfCoordinator: 0x3C0Ca683b403E37668AE3DC4FB62F4B29B6f7a3e, // Sepolia VRF Coordinator
             gasLane: 0x8472ba59cf7134dfe321f4d61a430c4857e8b19cdd5230b09952a92671c24409, // Sepolia gas lane - 30 gwei
-            subscriptionId: 0, // Sepolia subscription ID
+            subscriptionId: 62740072675788082979446210315956646596550438643938315103185941809912982489388, // Sepolia subscription ID
             callbackGasLimit: 500000, // 100,000 gas
-            link: 0x779877A7B0D9E8603169DdbD7836e478b4624789 // LINK token address
+            link: 0x779877A7B0D9E8603169DdbD7836e478b4624789, // LINK token address
+            account: 0x023996F239e9eFD1aE5F55f4CcF81DAC43aAB1Df
         });
     }
 
@@ -87,7 +89,8 @@ contract HelperConfig is CodeConstants, Script {
             gasLane: 0x8472ba59cf7134dfe321f4d61a430c4857e8b19cdd5230b09952a92671c24409, // Anvil gas lane - 30 gwei
             subscriptionId: 0, // Anvil subscription ID - might have to fix this
             callbackGasLimit: 500000, // 100,000 gas
-            link: address(linkToken) // LINK token address
+            link: address(linkToken), // LINK token address
+            account: 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38
         });
 
         return localNetworkConfig;
